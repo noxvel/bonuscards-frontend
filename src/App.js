@@ -1,6 +1,8 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 //import logo from './logo.svg';
 import './App.css';
+import MainForm from './MainForm.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 class App extends Component {
   render() {
@@ -9,9 +11,11 @@ class App extends Component {
         <header className="App-header">
           <h1 className="App-title">Регистрация бонусной карты</h1>
         </header>
-        <p className="App-intro">
-        </p>
+
+        <MainForm />
+      
       </div>
+
     );
   }
 }

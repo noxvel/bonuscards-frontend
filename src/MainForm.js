@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './MainForm.css';
 import {
+		Alert,
 		Col,
 		Row,
 		Container,
@@ -12,85 +13,103 @@ import {
 		FormFeedback,
 		ButtonGroup
 } from 'reactstrap';
+
 import MaskedInput from 'react-text-mask'
 
 
-const inputParsers = {
-  date(input) {
-    const [month, day, year] = input.split('/');
-    return `${year}-${month}-${day}`;
-  },
-  uppercase(input) {
-    return input.toUpperCase();
-  },
-  number(input) {
-    return parseFloat(input);
-  },
-};
-
 const API = 'http://192.168.100.190/Work/hs/BonusCards/'
 const CREATE_CARD = 'createcard/'
+
+const ERROR_MESSAGES = {
+		0: {
+				color: "light",
+				message: ""
+		},
+		1: {
+				color: "success",
+				message: "Бонусная карта успешно создана!"
+		},
+		2: {
+				color: "danger",
+				message: "Карта с указаным номером уже существует!"
+		},
+		3: {
+				color: "danger",
+				message: "Введеный промокод не найден в базе!"
+		},
+		4: {
+				color: "danger",
+				message: "Уже есть карта, подвязанная к данному промокоду!"
+		},
+		5: {
+				color: "warning",
+				message: "Не удалось связаться с сервером, обратитесь в тех. службу!"
+		}
+}
 
 class MainForm extends Component {
 
 		constructor(props) {
 				super(props)
 				this.state = {
-						inputName: 'Чапай',
-						inputPhone: '+39 (093) 234-34-23',
-						inputBirthdate: '1986-04-12',
+						clientName: 'Чапай',
+						clientPhone: '+39 (093) 234-34-23',
+						clientBirthdate: '1986-04-12',
 						promoDisabled: true,
-						cardNumber: "11111",
-						promoNumber: "123123",
+						cardNumber: "1111111111",
+						promoNumber: "",
+						statusCode: 0,
+						formIsValid: true
 				}
 
 				this.onRadioBtnClick = this.onRadioBtnClick.bind(this);
 				this.handleSubmit = this.handleSubmit.bind(this);
 		}
 
-		handleSubmit(event) {
-
-			if (!event.target.checkValidity()) {
-				// form is invalid! so we do nothing
-				return;
-			}
-
-			event.preventDefault();
-
-			let urlEncodedData = "";
-			let urlEncodedDataPairs = [];
-
-			// Turn the data object into an array of URL-encoded key/value pairs.
-			for(let name in this.state) {
-				urlEncodedDataPairs.push(name + '=' + this.state[name]);
-			}
-			urlEncodedData = urlEncodedDataPairs.join('&');
-
-			// for (let name of data.keys()) {
-			// 	const input = form.elements[name];
-			// 	const parserName = input.dataset.parse;
-	
-			// 	if (parserName) {
-			// 		const parser = inputParsers[parserName];
-			// 		const parsedValue = parser(data.get(name));
-			// 		data.set(name, parsedValue);
-			// 	}
-			// }
-
-			fetch(API + CREATE_CARD,{
-				method: 'POST',
-				headers: {  
-					'Content-Type': "application/x-www-form-urlencoded; charset=UTF-8" 
-				},  
-				body: urlEncodedData, })
-			.then(response => {
-					return response.text();
-			})
-			.then(data => console.log(data))
-			.catch(error => console.log(error));
+		clearFields(){
+			this.setState({clientName: '',
+										clientPhone: '',
+										clientBirthdate: '',		
+										cardNumber: "",
+										promoNumber: ""});
 		}
 
-	
+		handleSubmit(event) {
+
+			event.preventDefault();
+			event.stopPropagation();
+			this.setState({statusCode: 0});
+
+				if (!event.target.checkValidity()) {
+						// form is invalid! so we do nothing
+						this.setState({formIsValid: false})
+						return;
+				}
+
+				this.setState({formIsValid: true});
+
+				let jsonFormData = {};
+
+				jsonFormData = JSON.stringify(this.state);
+
+				fetch(API + CREATE_CARD, {
+						method: 'POST',
+						headers: {
+								'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+						},
+						body: jsonFormData
+				}).then(response => {
+						return response.json();
+				})
+				.then(data => {
+												this.setState({statusCode: data.statusCode});
+												if(data.statusCode === 1)	this.clearFields();		
+												})
+				//.then(data => console.log(data))
+				//.catch(error => console.log(error));
+					.catch(error => this.setState({statusCode: 5}))
+		}
+
 		handleUserInput = (e) => {
 				const name = e.target.name;
 				const value = e.target.value;
@@ -105,7 +124,32 @@ class MainForm extends Component {
 				this.setState({promoDisabled: promoState, promoNumber: ""});
 		}
 
+		takeMessageText() {
+				return ERROR_MESSAGES[this.state.statusCode];
+		}
+
 		render() {
+				let promoField = () => {
+						if (this.state.promoDisabled) {
+								return;
+						} else {
+								return (
+										<Col>
+												<Label for="promoNumber">Промо код</Label>
+												<Input
+														type="text"
+														name="promoNumber"
+														pattern="\d{7}"
+														required
+														value={this.state.promoNumber}
+														onChange={this.handleUserInput}
+														disabled={this.state.promoDisabled}/>
+												<FormFeedback>Укажите промокод.</FormFeedback>
+										</Col>
+								)
+						}
+				}
+
 				return (
 
 						<Container className="mainForm">
@@ -115,17 +159,25 @@ class MainForm extends Component {
 
 										<Col xs="6">
 
-												<Form className="needs-validation" noValidate onSubmit={this.handleSubmit}>
+												<Alert
+														color={this.takeMessageText(this.state.statusCode).color}	isOpen={this.state.statusCode !== 0}>
+														{this.takeMessageText(this.state.statusCode).message}
+												</Alert>
+
+												<Form
+														className={this.state.formIsValid ? "" : "was-validated"}
+														noValidate
+														onSubmit={this.handleSubmit}>
 														<FormGroup >
-																<Label for="inputName">ФИО</Label>
+																<Label for="clientName">ФИО</Label>
 																<Input
 																		type="text"
-																		pattern="[а-яА-Я ]+"
+																		pattern="[а-яА-Я ]{1,60}"
 																		className="form-control"
-																		name="inputName"
+																		name="clientName"
 																		placeholder="Чапаев Василий Иванович"
 																		required
-																		value={this.state.inputName}
+																		value={this.state.clientName}
 																		onChange={this.handleUserInput}/>
 																<FormFeedback>Укажите ФИО клиента.</FormFeedback>
 														</FormGroup>
@@ -133,31 +185,32 @@ class MainForm extends Component {
 														<FormGroup row>
 																<Col>
 
-																		<Label for="inputPhone" className="col-md-6">Телефон</Label>
-																		<MaskedInput className="form-control"
+																		<Label for="clientPhone" className="col-md-6">Телефон</Label>
+																		<MaskedInput
+																				className="form-control"
 																				type="tel"
-																				mask={['+', '3', '8', '0', ' ', '(', /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, '-', /\d/, /\d/]}
+																				mask={[	'+','3','8','0',' ','(',/\d/,	/\d/,	')',' ', /\d/,/\d/,	/\d/,'-',/\d/,	/\d/,	'-',/\d/,	/\d/]}
 																				guide={true}
 																				showMask={true}
 																				placeholder="+380 (__) ___-__-__"
-																				name="inputPhone"
+																				name="clientPhone"
 																				pattern="((\+380 )\(\d{2}\)) \d{3}-\d{2}-\d{2}"
 																				required
-																			  value={this.state.inputPhone}
-																			  onChange={this.handleUserInput}/> 
+																				value={this.state.clientPhone}
+																				onChange={this.handleUserInput}/>
 																		<FormFeedback>Укажите телефон клиента.</FormFeedback>
 																</Col>
 
 																<Col>
-																		<Label for="inputBirthdate" className="col-md-6">
+																		<Label for="clientBirthdate" className="col-md-6">
 																				<span>Дата рождения</span>
 																		</Label>
 																		<Input
 																				type="date"
-																				name="inputBirthdate"
+																				name="clientBirthdate"
 																				placeholder="password placeholder"
 																				required
-																				value={this.state.inputBirthdate}
+																				value={this.state.clientBirthdate}
 																				onChange={this.handleUserInput}/>
 																		<FormFeedback>Укажите дату рождения клиента.</FormFeedback>
 																</Col>
@@ -184,40 +237,22 @@ class MainForm extends Component {
 																		<Col>
 																				<Label for="cardNumber">Номер Бонусной карты</Label>
 																				<Input
-																						type="number"
+																						type="text"
 																						name="cardNumber"
+																						pattern="\d{8,14}"
 																						required
 																						value={this.state.cardNumber}
-																						onChange={this.handleUserInput}
-																						/>
+																						onChange={this.handleUserInput}/>
 																				<FormFeedback>Укажите код карты.</FormFeedback>
 																		</Col>
-																		< Col >
-																				<Label for="promoNumber">Промо код</Label>
-																				<Input
-																						type="number"
-																						name="promoNumber"
-																						required
-																						value={this.state.promoNumber}
-																						onChange={this.handleUserInput}
-																						disabled={this.state.promoDisabled}
-																						/>
-																				<FormFeedback>Укажите промокод.</FormFeedback>
-																		</Col>
+																		{/* show or hide promo field */}
+																		{promoField()}
 
 																</FormGroup>
 														</div>
 
 														<FormGroup >
-
-																<Button
-																		id="submitButton"
-																		color="primary"
-																		size="lg"
-																		block
-																		type="submit"
-																		>Отправить</Button>
-
+																<Button id="submitButton" color="primary" size="lg" block type="submit">Отправить</Button>
 														</FormGroup>
 												</Form>
 

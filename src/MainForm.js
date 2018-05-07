@@ -14,8 +14,7 @@ import {
 		ButtonGroup
 } from 'reactstrap';
 
-import MaskedInput from 'react-text-mask'
-
+import InputMask from 'react-input-mask'
 
 const API = 'http://192.168.100.190/Work/hs/BonusCards/'
 const CREATE_CARD = 'createcard/'
@@ -48,24 +47,41 @@ const ERROR_MESSAGES = {
 }
 
 class MainForm extends Component {
-
-		constructor(props) {
-				super(props)
-				this.state = {
-						clientName: 'Чапай',
-						clientPhone: '+39 (093) 234-34-23',
-						clientBirthdate: '1986-04-12',
-						promoDisabled: true,
-						cardNumber: "1111111111",
-						promoNumber: "",
-						statusCode: 0,
-						formIsValid: true
-				}
-
-				this.onRadioBtnClick = this.onRadioBtnClick.bind(this);
-				this.handleSubmit = this.handleSubmit.bind(this);
+	
+		state = {
+			clientName: '',
+			clientPhone: '',
+			clientBirthdate: '',
+			promoDisabled: true,
+			cardNumber: "",
+			promoNumber: "",
+			statusCode: 0,
+			formIsValid: true,
+			tightWindowSize: false
 		}
 
+			componentDidMount() {
+				console.log(this.state.height);
+				// Additionally I could have just used an arrow function for the binding `this` to the component...
+				window.addEventListener("resize", this.updateDimensions);
+			}
+			componentWillUnmount() {
+				window.removeEventListener("resize", this.updateDimensions);
+			}
+
+			updateDimensions = () => {
+				// this.setState({
+				// 	height: window.innerHeight, 
+				// 	width: window.innerWidth
+				// });
+				if(window.innerWidth < 992){
+					this.setState({ tightWindowSize: true });
+				}else{
+					this.setState({ tightWindowSize: false });
+				}
+				//console.log( window.innerWidth);
+			}
+	
 		clearFields(){
 			this.setState({clientName: '',
 										clientPhone: '',
@@ -74,7 +90,7 @@ class MainForm extends Component {
 										promoNumber: ""});
 		}
 
-		handleSubmit(event) {
+		handleSubmit = (event) => {
 
 			event.preventDefault();
 			event.stopPropagation();
@@ -99,20 +115,23 @@ class MainForm extends Component {
 						},
 						body: jsonFormData
 				}).then(response => {
+					if (response.ok) {
 						return response.json();
+					} else {
+						throw new Error('Something went wrong ...');
+					}
+					//return response.json();
 				})
 				.then(data => {
 												this.setState({statusCode: data.statusCode});
 												if(data.statusCode === 1)	this.clearFields();		
 												})
-				//.then(data => console.log(data))
-				//.catch(error => console.log(error));
-					.catch(error => this.setState({statusCode: 5}))
+				.catch(error => this.setState({statusCode: 5}))
 		}
 
-		handleUserInput = (e) => {
-				const name = e.target.name;
-				const value = e.target.value;
+		handleUserInput = (event) => {
+				const name = event.target.name;
+				const value = event.target.value;
 				// this.setState({[name]: value},              () => { this.validateField(name,
 				// value) });
 				this.setState({
@@ -120,7 +139,7 @@ class MainForm extends Component {
 				},);
 		}
 
-		onRadioBtnClick(promoState) {
+		onRadioBtnClick = (e, promoState) => {
 				this.setState({promoDisabled: promoState, promoNumber: ""});
 		}
 
@@ -141,6 +160,7 @@ class MainForm extends Component {
 														name="promoNumber"
 														pattern="\d{7}"
 														required
+														autocomplete="off"
 														value={this.state.promoNumber}
 														onChange={this.handleUserInput}
 														disabled={this.state.promoDisabled}/>
@@ -186,18 +206,18 @@ class MainForm extends Component {
 																<Col>
 
 																		<Label for="clientPhone" className="col-md-6">Телефон</Label>
-																		<MaskedInput
+																		<InputMask
 																				className="form-control"
 																				type="tel"
-																				mask={[	'+','3','8','0',' ','(',/\d/,	/\d/,	')',' ', /\d/,/\d/,	/\d/,'-',/\d/,	/\d/,	'-',/\d/,	/\d/]}
-																				guide={true}
-																				showMask={true}
-																				placeholder="+380 (__) ___-__-__"
+																				alwaysShowMask={true}
+																				mask="+38 (999) 999-99-99"
+																				//placeholder="+38 (___) ___-__-__"
 																				name="clientPhone"
-																				pattern="((\+380 )\(\d{2}\)) \d{3}-\d{2}-\d{2}"
+																				pattern="((\+38 )\(\d{3}\)) \d{3}-\d{2}-\d{2}"
 																				required
 																				value={this.state.clientPhone}
 																				onChange={this.handleUserInput}/>
+
 																		<FormFeedback>Укажите телефон клиента.</FormFeedback>
 																</Col>
 
@@ -220,14 +240,16 @@ class MainForm extends Component {
 														<div id="cardNumbersField">
 																<div id="switchBlock">
 																		<h5>Режим создания карты</h5>
-																		<ButtonGroup>
+																		<ButtonGroup id="btn-group" vertical={this.state.tightWindowSize}>
 																				<Button
+																						className="switch-button"
 																						color="info"
-																						onClick={() => this.onRadioBtnClick(true)}
+																						onClick={(e) => this.onRadioBtnClick(e,true)}
 																						active={this.state.promoDisabled}>Создать новую карту</Button>
 																				<Button
+																						className="switch-button"
 																						color="info"
-																						onClick={() => this.onRadioBtnClick(false)}
+																						onClick={(e) => this.onRadioBtnClick(e,false)}
 																						active={!this.state.promoDisabled}>Подвязать к промокоду</Button>
 																		</ButtonGroup>
 

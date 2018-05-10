@@ -2,6 +2,7 @@
   "name": "bonuscards-frontend",
   "version": "0.3.0",
   "private": true,
+  "homepage": "/bonuscards",
   "dependencies": {
     "bootstrap": "^4.0.0",
     "react": "^16.3.1",

@@ -16,7 +16,7 @@ import {
 
 import InputMask from 'react-input-mask'
 
-const API = 'http://192.168.100.190/Work/hs/BonusCards/'
+const API = 'http://192.168.100.159/Work/hs/BonusCards/'
 const CREATE_CARD = 'createcard/'
 
 const ERROR_MESSAGES = {
@@ -61,8 +61,6 @@ class MainForm extends Component {
 		}
 
 			componentDidMount() {
-				console.log(this.state.height);
-				// Additionally I could have just used an arrow function for the binding `this` to the component...
 				window.addEventListener("resize", this.updateDimensions);
 			}
 			componentWillUnmount() {
@@ -205,7 +203,7 @@ class MainForm extends Component {
 														<FormGroup row>
 																<Col>
 
-																		<Label for="clientPhone" className="col-md-6">Телефон</Label>
+																		<Label for="clientPhone" >Телефон</Label>
 																		<InputMask
 																				className="form-control"
 																				type="tel"
@@ -222,7 +220,7 @@ class MainForm extends Component {
 																</Col>
 
 																<Col>
-																		<Label for="clientBirthdate" className="col-md-6">
+																		<Label for="clientBirthdate" >
 																				<span>Дата рождения</span>
 																		</Label>
 																		<Input
@@ -240,14 +238,12 @@ class MainForm extends Component {
 														<div id="cardNumbersField">
 																<div id="switchBlock">
 																		<h5>Режим создания карты</h5>
-																		<ButtonGroup id="btn-group" vertical={this.state.tightWindowSize}>
+																		<ButtonGroup vertical={this.state.tightWindowSize}>
 																				<Button
-																						className="switch-button"
 																						color="info"
 																						onClick={(e) => this.onRadioBtnClick(e,true)}
 																						active={this.state.promoDisabled}>Создать новую карту</Button>
 																				<Button
-																						className="switch-button"
 																						color="info"
 																						onClick={(e) => this.onRadioBtnClick(e,false)}
 																						active={!this.state.promoDisabled}>Подвязать к промокоду</Button>

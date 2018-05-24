@@ -1,11 +1,10 @@
+.mainForm  {
+    margin-top: 30px;
+    font-family: 'OpenSans-Regular' , Helvetica, Verdana , sans-serif;
+}
+
 label {
     white-space: nowrap; 
-}
-#btn-group {
-    white-space: nowrap;
-  }
-.switch-button {
-  float: none;
 }
 #switchBlock {
     text-align: center;

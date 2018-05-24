@@ -1,0 +1,29 @@
+
+.App-header {
+  text-align: center;
+  background-color: #556ec9;
+  height: 171px;
+  padding: 40px;
+  color: white;
+  font-size: 150%;
+  font-family: 'raleway-bold', Helvetica, Verdana , sans-serif;
+}
+
+.App-header h1 {
+  padding-bottom: 5px;
+}
+.nav-link {
+  color: white;
+  margin: 0 10px 0 10px;
+  /* text-transform: uppercase; */
+}
+
+.nav-link:hover {
+  color: white;
+  /* border-color: #6c7dbd;  */
+}
+
+.App-title {
+  font-size: 2em;
+  font-family: 'raleway-bold', Helvetica, Verdana , sans-serif;
+}

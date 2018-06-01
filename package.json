@@ -4,13 +4,13 @@
   "private": true,
   "homepage": "/bonuscards",
   "dependencies": {
-    "bootstrap": "^4.0.0",
-    "react": "^16.3.1",
-    "react-dom": "^16.3.1",
+    "bootstrap": "^4.1.1",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
     "react-input-mask": "^1.2.2",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.4",
-    "reactstrap": "^5.0.0-beta.3"
+    "reactstrap": "^5.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

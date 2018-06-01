@@ -12,25 +12,140 @@ import {
   Input,
   FormFeedback,
   InputGroupAddon,
-  Card,
-  CardBody,
   InputGroup
 } from 'reactstrap';
-
+import './ChangeForm.css'
 import InputMask from 'react-input-mask';
+
+const API = 'http://192.168.100.190/Work/hs/BonusCards/'
+const CHANGE_CARD = 'changecard'
+
+const ERROR_MESSAGES = {
+  0: {
+    color: "light",
+    message: ""
+  },
+  1: {
+    color: "info",
+    message: "Найдена карта!"
+  },
+  2: {
+    color: "danger",
+    message: "Не найдена карта по указаному телефону!"
+  },
+  3: {
+    color: "danger",
+    message: "Не указана карта для замены кода!"
+  },
+  4: {
+    color: "success",
+    message: "Карта заменена!"
+  },
+  5: {
+    color: "warning",
+    message: "Не удалось связаться с сервером, обратитесь в тех. службу!"
+  },
+  6: {
+    color: "danger",
+    message: "Не удалось заменить карту по техническим причинам!"
+  }
+}
+
 
 class ChangeForm extends Component {
 
   state = {
+    clientPhone: '+38 (344) 354-53-45',
     clientName: '',
-    clientPhone: '',
     clientBirthdate: '',
-    promoDisabled: true,
-    cardNumber: "",
-    promoNumber: "",
+    oldCardNumber: "",
+    newCardNumber: "",
+
     statusCode: 0,
-    formIsValid: true,
+    searchFormIsValid: true,
+    changeFormIsValid: true,
     tightWindowSize: false
+  }
+  handleSubmitSearch = (event) => {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!event.target.checkValidity()) {
+      // form is invalid! so we do nothing
+      this.setState({searchFormIsValid: false})
+      return;
+    }
+
+    this.setState({searchFormIsValid: true});
+
+    // let jsonFormData = {}; jsonFormData = JSON.stringify(this.state);
+
+    fetch(API + CHANGE_CARD + "?phone=" + this.state.clientPhone, {method: 'GET'}).then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Something went wrong ...');
+      }
+      //return response.json();
+    }).then(data => {
+      this.setState({statusCode: data.statusCode});
+      if (data.statusCode === 1) 
+        this.setState({statusCode: data.statusCode, clientName: data.clientName, clientBirthdate: data.clientBirthdate, oldCardNumber: data.cardNumber});
+      }
+    ).catch(error => this.setState({statusCode: 5}))
+
+  }
+
+  handleSubmitChange = (event) => {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!event.target.checkValidity()) {
+      // form is invalid! so we do nothing
+      this.setState({changeFormIsValid: false})
+      return;
+    }
+    if (this.state.oldCardNumber === ''){
+      this.setState({statusCode: 3})
+      return
+    }
+
+    this.setState({changeFormIsValid: true});
+
+    let jsonFormData = {oldCardNumber: this.state.oldCardNumber,
+                        newCardNumber: this.state.newCardNumber};
+    jsonFormData = JSON.stringify(jsonFormData);
+
+    fetch(API + CHANGE_CARD, {
+      method: 'POST',
+      // headers: {
+      //   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      // },
+      body: jsonFormData
+    }).then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Something went wrong ...');
+      }
+      //return response.json();
+    }).then(data => {
+      this.setState({statusCode: data.statusCode});
+      if (data.statusCode === 4) 
+        this.clearFields();
+      }
+    ).catch(error => this.setState({statusCode: 5}))
+
+  }
+
+  clearFields(){
+    this.setState({clientName: '',
+                  clientPhone: '',
+                  clientBirthdate: '',		
+                  oldCardNumber: '',
+                  newCardNumber: ''});
   }
 
   handleUserInput = (event) => {
@@ -43,6 +158,10 @@ class ChangeForm extends Component {
     },);
   }
 
+  takeMessageText() {
+    return ERROR_MESSAGES[this.state.statusCode];
+  }
+
   render() {
     return (
       <Container className="mainForm">
@@ -52,22 +171,13 @@ class ChangeForm extends Component {
 
           <Col xs="6">
 
-            {/* <Alert
-              color={this
-              .takeMessageText(this.state.statusCode)
-              .color}
-              isOpen={this.state.statusCode !== 0}>
-              {this
-                .takeMessageText(this.state.statusCode)
-                .message}
-            </Alert> */}
-
             <Form
-              className={this.state.formIsValid
+              id="searchForm"
+              className={this.state.searchFormIsValid
               ? ""
               : "was-validated"}
               noValidate
-              onSubmit={this.handleSubmit}>
+              onSubmit={this.handleSubmitSearch}>
 
               <Row>
                 <Col
@@ -80,30 +190,82 @@ class ChangeForm extends Component {
                     {/* <Label for="clientPhone" className="mr-sm-2">Телефон</Label> */}
                     <InputGroup>
                       <InputGroupAddon addonType="prepend">Телефон</InputGroupAddon>
-                      <InputMask className="form-control mr-sm-2" type="tel" alwaysShowMask={true} id="clientPhone" mask="+38 (999) 999-99-99" //placeholder="+38 (___) ___-__-__"
+                      <InputMask className="form-control" type="tel" alwaysShowMask={true} id="clientPhone" mask="+38 (999) 999-99-99" //placeholder="+38 (___) ___-__-__"
                         name="clientPhone" pattern="((\+38 )\(\d{3}\)) \d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
+                      <FormFeedback>Укажите телефон клиента.</FormFeedback>
                     </InputGroup>
-
-                    <FormFeedback>Укажите телефон клиента.</FormFeedback>
 
                   </FormGroup>
                 </Col>
                 <Col sm="3">
-                  <Button outline disabled>Поиск</Button>
+                  <Button outline type="submit">Поиск</Button>
                 </Col>
               </Row>
 
-              <Card>
-                <CardBody>
-                  Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry
-                  richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes
-                  anderson cred nesciunt sapiente ea proident.
-                </CardBody>
-              </Card>
+            </Form>
+
+            <div id="dataContainer" className="container">
+              <Row>
+                <Col className="dataTable" xs="4">
+                  <b>ФИО</b>
+                </Col>
+                <Col className="dataTable">{this.state.clientName}</Col>
+              </Row>
+              <Row>
+                <Col className="dataTable" xs="4">
+                  <b>Дата рождения</b>
+                </Col>
+                <Col className="dataTable">{this.state.clientBirthdate}</Col>
+              </Row>
+              <Row>
+                <Col className="dataTable" xs="4">
+                  <b>Номер карты</b>
+                </Col>
+                <Col className="dataTable">{this.state.oldCardNumber}</Col>
+              </Row>
+            </div>
+
+            <Form
+              id="newCardNumberBlock"
+              inline
+              className={this.state.changeFormIsValid
+              ? ""
+              : "was-validated"}
+              noValidate
+              onSubmit={this.handleSubmitChange}>
+
+              <FormGroup >
+
+                <Label for="newCardNumber" className="mr-sm-3">Новый номер</Label>
+                <div>
+                  <Input
+                    className="mr-sm-3"
+                    autoComplete="off"
+                    id="newCardNumber"
+                    type="text"
+                    name="newCardNumber"
+                    pattern="\d{8,14}"
+                    required
+                    value={this.state.newCardNumber}
+                    onChange={this.handleUserInput}/>
+                  <FormFeedback>Укажите код новой карты.</FormFeedback>
+                </div>
+              </FormGroup>
+              <Button type="submit">Заменить</Button>
             </Form>
 
           </Col>
-          <Col></Col>
+          <Col>
+            <Alert
+              color={this
+              .takeMessageText(this.state.statusCode)
+              .color}
+              isOpen={this.state.statusCode !== 0}>
+              {this
+                .takeMessageText(this.state.statusCode)
+                .message}
+            </Alert>
+          </Col>
         </Row>
       </Container>
     );

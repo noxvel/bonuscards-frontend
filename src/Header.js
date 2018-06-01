@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {NavLink, Link} from 'react-router-dom';
+import {NavLink } from 'react-router-dom';
 import './Header.css';
-import {Nav, Navbar, NavItem, Button} from 'reactstrap';
+import {Nav, Navbar, NavItem } from 'reactstrap';
 
 class Header extends Component {
   state = {}

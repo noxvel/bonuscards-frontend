@@ -1,20 +1,10 @@
-#searchForm {
-  /* display: flex;
-  align-items: center;
-  justify-content: center; */
-}
-
 #newCardNumberBlock {
   border: 2px solid rgb(11, 121, 121);
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 3px;
   margin-top: 1.5rem;
   align-items: center;
   justify-content: center;
-}
-
-.listOfData b {
-  white-space:pre; 
 }
 
 .dataTable {
@@ -31,3 +21,4 @@
   margin-top: 1rem;
   margin-bottom: -1.5rem;
 }
+

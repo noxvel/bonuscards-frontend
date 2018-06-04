@@ -13,10 +13,13 @@ class Header extends Component {
       
           <Nav tabs>
           <NavItem>
-            <NavLink className="nav-link" activeClassName='active' to='/create'>Новая</NavLink>
+            <NavLink className="nav-link" activeClassName='active' to='/create'>Создать</NavLink>
           </NavItem>
           <NavItem>
             <NavLink className="nav-link" activeClassName='active' to='/replacement'>Заменить</NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink className="nav-link" activeClassName='active' to='/combine'>Объединить</NavLink>
           </NavItem>
           </Nav>
         </Navbar>

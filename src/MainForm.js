@@ -50,7 +50,19 @@ const ERROR_MESSAGES = {
 		},
 		7: {
 				color: "danger",
-				message: "Ошибка при созднии карты!"
+				message: "Ошибка при созднии/редакт. карты!"
+		},
+		8: {
+				color: "warning",
+				message: "Карта по указанному номеру не найдена!"
+		},
+		9: {
+				color: "success",
+				message: "Данные по карте изменены!"
+		},
+		10: {
+				color: "info",
+				message: "Карта найдена!"
 		}
 
 }
@@ -74,17 +86,17 @@ class PromoField extends Component {
 
 class MainForm extends Component {
 
-	constructor(props){
-		super(props)
+		constructor(props) {
+				super(props)
 
-		this.promoInput = '';
+				this.promoInput = '';
 
-	}
+		}
 		state = {
 				clientName: '',
 				clientPhone: '',
 				clientBirthdate: '',
-				promoDisabled: true,
+				editMode: 1, // 1 - create, 2 - promo, 3 - edit
 				cardNumber: "",
 				statusCode: 0,
 				formIsValid: true,
@@ -111,7 +123,7 @@ class MainForm extends Component {
 		}
 
 		clearFields() {
-				this.setState({clientName: '', clientPhone: '', clientBirthdate: '', cardNumber: "", promos: [] });
+				this.setState({clientName: '', clientPhone: '', clientBirthdate: '', cardNumber: "", promos: []});
 		}
 
 		handleSubmit = (event) => {
@@ -126,10 +138,10 @@ class MainForm extends Component {
 						return;
 				}
 
-				if ( (!this.state.promoDisabled) && (!Array.isArray(this.state.promos) || !this.state.promos.length) ) {
-					// array does not exist, is not an array, or is empty
-					this.setState({statusCode: 6});
-					return;
+				if ((this.state.editMode === 2) && (!Array.isArray(this.state.promos) || !this.state.promos.length)) {
+						// array does not exist, is not an array, or is empty
+						this.setState({statusCode: 6});
+						return;
 				}
 				this.setState({formIsValid: true});
 
@@ -139,11 +151,9 @@ class MainForm extends Component {
 
 				fetch(API + CREATE_CARD, {
 						method: 'POST',
-						// headers: {
-						// 		// 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-						// 		// 'Accept': 'application/json',
-						// 		// 'Content-Type': 'application/json; charset=UTF-8'
-						// },
+						// headers: { 		// 'Content-Type': 'application/x-www-form-urlencoded;
+						// charset=UTF-8' 		// 'Accept': 'application/json', 		// 'Content-Type':
+						// 'application/json; charset=UTF-8' },
 						body: jsonFormData
 				}).then(response => {
 						if (response.ok) {
@@ -170,8 +180,8 @@ class MainForm extends Component {
 				},);
 		}
 
-		onRadioBtnClick = (e, promoState) => {
-				this.setState({promoDisabled: promoState});
+		onRadioBtnClick = (e, mode) => {
+				this.setState({editMode: mode});
 		}
 
 		takeMessageText() {
@@ -179,14 +189,14 @@ class MainForm extends Component {
 		}
 
 		addPromo = (event) => {
-	
+
 				if (event.key !== 'Enter') {
 						return;
 				}
 
 				let newPromo = this.promoInput.value;
 
-				if (newPromo !== '' && this.state.promos.indexOf(newPromo) === -1 ) {
+				if (newPromo !== '' && this.state.promos.indexOf(newPromo) === -1) {
 						this.setState(prevState => ({
 								promos: [
 										...prevState.promos,
@@ -206,6 +216,44 @@ class MainForm extends Component {
 				this.setState({promos: array});
 		}
 
+		checkEditMode = (mode) => {
+				return this.state.editMode === mode
+						? true
+						: false;
+		}
+
+		searchCard = (event) => {
+
+				event.preventDefault();
+				event.stopPropagation();
+				this.setState({statusCode: 0});
+
+				if (this.state.cardNumber === '') {
+						// form is invalid! so we do nothing
+						return;
+				}
+
+				this.setState({formIsValid: true});
+			
+				fetch(API + CREATE_CARD + "?cardnumber=" + this.state.cardNumber, {method: 'GET'}).then(response => {
+					if (response.ok) {
+						return response.json();
+					} else {
+						throw new Error('Something went wrong ...');
+					}
+				}).then(data => {
+						this.setState({statusCode: data.statusCode});
+						if (data.statusCode === 10) {
+								this.setState({ clientName: data.clientName, clientBirthdate: data.clientBirthdate, clientPhone: data.clientPhone});
+							}
+						else {
+								this.clearFields();
+						}
+						}
+				).catch(error => this.setState({statusCode: 5}))
+
+		}
+
 		render() {
 
 				let promos = this
@@ -216,26 +264,34 @@ class MainForm extends Component {
 						})
 
 				let promoField = () => {
-						if (this.state.promoDisabled) {
+						if (this.state.editMode === 1) {
 								return;
-						} else {
+						} else if (this.state.editMode === 2) {
 								return (
 										<Col>
 												<Label for="newPromoCode">Добавить промокод</Label>
-												<Input type="text" 
-													name="newPromoCode" 
-													pattern="\d{7}" // required
-													autoComplete="off" 
-													// value={this.state.newPromoCode} 
-													// onChange={this.handleUserInput}
-													onKeyPress={this.addPromo} 
-													innerRef={(input) => { this.promoInput = input;} }
-													disabled={this.state.promoDisabled}/>
+												<Input type="text" name="newPromoCode" pattern="\d{7}" // required
+														autoComplete="off"  
+														onKeyPress={this.addPromo} 
+														innerRef={(input) => {
+															this.promoInput = input;
+														}}
+												 		disabled={this.state.editMode !== 2}/>
 												<FormFeedback>Укажите промокод.</FormFeedback>
-												
+
 												<div id="promoContainer">
-													{promos}
+														{promos}
 												</div>
+										</Col>
+								)
+						} else if (this.state.editMode === 3) {
+								return (
+										<Col  id="searchBlock">
+									
+												<Button id="searchButton" color="secondary" onClick={this.searchCard}>
+														Поиск
+												</Button>
+										
 										</Col>
 								)
 						}
@@ -246,12 +302,7 @@ class MainForm extends Component {
 						<Container className="mainForm">
 
 								<Row>
-										<Col>
-										<svg width="100" height="100" viewBox="0 0 1024 1024">
-    <path d="M192 1024h640l64-704h-768zM640 128v-128h-256v128h-320v192l64-64h768l64 64v-192h-320zM576 128h-128v-64h128v64z"></path>
-  </svg>
-										
-										</Col>
+										<Col></Col>
 
 										<Col xs="6">
 
@@ -280,8 +331,8 @@ class MainForm extends Component {
 																<Col>
 
 																		<Label for="clientPhone">Телефон</Label>
-																		<InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+38 (999) 999-99-99" //placeholder="+38 (___) ___-__-__"
-																				name="clientPhone" autoComplete="off" pattern="((\+38 )\(\d{3}\)) \d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
+																		<InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+38(999)999-99-99" //placeholder="+38(___)___-__-__"
+																				name="clientPhone" autoComplete="off" pattern="((\+38)\(\d{3}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
 
 																		<FormFeedback>Укажите телефон клиента.</FormFeedback>
 																</Col>
@@ -308,12 +359,16 @@ class MainForm extends Component {
 																		<ButtonGroup vertical={this.state.tightWindowSize}>
 																				<Button
 																						color="info"
-																						onClick={(e) => this.onRadioBtnClick(e, true)}
-																						active={this.state.promoDisabled}>Создать новую карту</Button>
+																						onClick={(e) => this.onRadioBtnClick(e, 1)}
+																						active={this.checkEditMode(1)}>Новая</Button>
 																				<Button
 																						color="info"
-																						onClick={(e) => this.onRadioBtnClick(e, false)}
-																						active={!this.state.promoDisabled}>Подвязать к промокоду</Button>
+																						onClick={(e) => this.onRadioBtnClick(e, 2)}
+																						active={this.checkEditMode(2)}>Промокод</Button>
+																				<Button
+																						color="info"
+																						onClick={(e) => this.onRadioBtnClick(e, 3)}
+																						active={this.checkEditMode(3)}>Редактировать</Button>
 																		</ButtonGroup>
 
 																</div>
@@ -344,8 +399,8 @@ class MainForm extends Component {
 
 										</Col>
 										<Col>
-										
-											<Alert
+
+												<Alert
 														color={this
 														.takeMessageText(this.state.statusCode)
 														.color}
@@ -353,7 +408,7 @@ class MainForm extends Component {
 														{this
 																.takeMessageText(this.state.statusCode)
 																.message}
-											</Alert>
+												</Alert>
 										</Col>
 								</Row>
 

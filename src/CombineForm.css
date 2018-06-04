@@ -1,0 +1,39 @@
+
+.dataTable {
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 0.75rem;
+}
+
+#dataContainer {
+  margin-top: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+#iconContainer {
+  display: flex;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+}
+
+#fromContainer {
+  /* border: 1px solid rgb(11, 121, 121);
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 2px 2px 4px rgb(11, 121, 121); */
+}
+
+#toContainer {
+  /* border: 1px solid rgb(11, 121, 121);
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 2px 2px 4px rgb(11, 121, 121); */
+}
+
+.dataContainer {
+  padding: 1rem;
+}
+
+#submitButton {
+  margin-top: 1rem;
+}

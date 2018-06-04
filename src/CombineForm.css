@@ -16,20 +16,6 @@
   justify-content: center;
 }
 
-#fromContainer {
-  /* border: 1px solid rgb(11, 121, 121);
-  border-radius: 10px;
-  padding: 1rem;
-  box-shadow: 2px 2px 4px rgb(11, 121, 121); */
-}
-
-#toContainer {
-  /* border: 1px solid rgb(11, 121, 121);
-  border-radius: 10px;
-  padding: 1rem;
-  box-shadow: 2px 2px 4px rgb(11, 121, 121); */
-}
-
 .dataContainer {
   padding: 1rem;
 }

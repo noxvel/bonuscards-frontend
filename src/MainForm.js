@@ -15,8 +15,9 @@ import {
 } from 'reactstrap';
 
 import InputMask from 'react-input-mask'
+import ConstClass from './constants.js';
 
-const API = 'http://192.168.100.190/Work/hs/BonusCards/'
+
 const CREATE_CARD = 'createcard/'
 
 const ERROR_MESSAGES = {
@@ -149,7 +150,7 @@ class MainForm extends Component {
 
 				jsonFormData = JSON.stringify(this.state);
 
-				fetch(API + CREATE_CARD, {
+				fetch(ConstClass.APIPath + CREATE_CARD, {
 						method: 'POST',
 						// headers: { 		// 'Content-Type': 'application/x-www-form-urlencoded;
 						// charset=UTF-8' 		// 'Accept': 'application/json', 		// 'Content-Type':
@@ -164,7 +165,7 @@ class MainForm extends Component {
 						//return response.json();
 				}).then(data => {
 						this.setState({statusCode: data.statusCode});
-						if (data.statusCode === 1) 
+						if (data.statusCode === 1 || data.statusCode === 9) 
 								this.clearFields();
 						}
 				).catch(error => this.setState({statusCode: 5}))
@@ -235,7 +236,7 @@ class MainForm extends Component {
 
 				this.setState({formIsValid: true});
 			
-				fetch(API + CREATE_CARD + "?cardnumber=" + this.state.cardNumber, {method: 'GET'}).then(response => {
+				fetch(ConstClass.APIPath + CREATE_CARD + "?cardnumber=" + this.state.cardNumber, {method: 'GET'}).then(response => {
 					if (response.ok) {
 						return response.json();
 					} else {

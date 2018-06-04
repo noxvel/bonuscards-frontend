@@ -16,8 +16,8 @@ import {
 } from 'reactstrap';
 import './ChangeForm.css'
 import InputMask from 'react-input-mask';
+import ConstClass from './constants.js';
 
-const API = 'http://192.168.100.190/Work/hs/BonusCards/'
 const CHANGE_CARD = 'changecard'
 
 const ERROR_MESSAGES = {
@@ -80,8 +80,7 @@ class ChangeForm extends Component {
     this.setState({searchFormIsValid: true});
 
     // let jsonFormData = {}; jsonFormData = JSON.stringify(this.state);
-
-    fetch(API + CHANGE_CARD + "?phone=" + this.state.clientPhone, {method: 'GET'}).then(response => {
+    fetch(ConstClass.APIPath + CHANGE_CARD + "?phone=" + this.state.clientPhone, {method: 'GET'}).then(response => {
       if (response.ok) {
         return response.json();
       } else {
@@ -118,7 +117,7 @@ class ChangeForm extends Component {
                         newCardNumber: this.state.newCardNumber};
     jsonFormData = JSON.stringify(jsonFormData);
 
-    fetch(API + CHANGE_CARD, {
+    fetch(ConstClass.APIPath + CHANGE_CARD, {
       method: 'POST',
       // headers: {
       //   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'

@@ -17,8 +17,9 @@ import {
 import './CombineForm.css'
 //import InputMask from 'react-input-mask';
 import FaArrowDown from 'react-icons/lib/fa/arrow-down';
+import ConstClass from './constants.js';
 
-const API = 'http://192.168.100.190/Work/hs/BonusCards/'
+
 const COMBINE_CARD = 'combinecards'
 
 const ERROR_MESSAGES = {
@@ -102,7 +103,7 @@ class ClientCard extends Component {
 
     // let jsonFormData = {}; jsonFormData = JSON.stringify(this.state);
 
-    fetch(API + COMBINE_CARD + "?cardnumber=" + this.state.searchCardNumber, {method: 'GET'}).then(response => {
+    fetch(ConstClass.APIPath + COMBINE_CARD + "?cardnumber=" + this.state.searchCardNumber, {method: 'GET'}).then(response => {
       if (response.ok) {
         return response.json();
       } else {
@@ -240,7 +241,7 @@ class CombineForm extends Component {
     };
     jsonFormData = JSON.stringify(jsonFormData);
 
-    fetch(API + COMBINE_CARD, {
+    fetch(ConstClass.APIPath + COMBINE_CARD, {
       method: 'POST',
       // headers: {   'Content-Type': 'application/x-www-form-urlencoded;
       // charset=UTF-8' },

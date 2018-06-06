@@ -317,7 +317,7 @@ class MainForm extends Component {
 																<Label for="clientName">ФИО</Label>
 																<Input
 																		type="text"
-																		pattern="[а-яА-Я ]{1,60}"
+																		pattern="[А-Яа-яёЁЇїІіЄєҐґ\s']{1,60}"
 																		className="form-control"
 																		autoComplete="off"
 																		name="clientName"

@@ -189,8 +189,8 @@ class ChangeForm extends Component {
                     {/* <Label for="clientPhone" className="mr-sm-2">Телефон</Label> */}
                     <InputGroup>
                       <InputGroupAddon addonType="prepend">Телефон</InputGroupAddon>
-                      <InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+38(999)999-99-99" //placeholder="+38(___)___-__-__"
-																				name="clientPhone" autoComplete="off" pattern="((\+38)\(\d{3}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
+                      <InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
+																				name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
 
                       <FormFeedback>Укажите телефон клиента.</FormFeedback>
                     </InputGroup>
@@ -206,22 +206,22 @@ class ChangeForm extends Component {
 
             <div id="dataContainer" className="container">
               <Row>
-                <Col className="dataTable" xs="4">
+                <Col className="dataTableChange" xs="4">
                   <b>ФИО</b>
                 </Col>
-                <Col className="dataTable">{this.state.clientName}</Col>
+                <Col className="dataTableChange">{this.state.clientName}</Col>
               </Row>
               <Row>
-                <Col className="dataTable" xs="4">
+                <Col className="dataTableChange" xs="4">
                   <b>Дата рождения</b>
                 </Col>
-                <Col className="dataTable">{this.state.clientBirthdate}</Col>
+                <Col className="dataTableChange">{this.state.clientBirthdate}</Col>
               </Row>
               <Row>
-                <Col className="dataTable" xs="4">
+                <Col className="dataTableChange" xs="4">
                   <b>Номер карты</b>
                 </Col>
-                <Col className="dataTable">{this.state.oldCardNumber}</Col>
+                <Col className="dataTableChange">{this.state.oldCardNumber}</Col>
               </Row>
             </div>
 

@@ -12,10 +12,10 @@ import {
   FormFeedback,
   InputGroupAddon,
   Card,
+  CardTitle,
   InputGroup
 } from 'reactstrap';
 import './CombineForm.css'
-//import InputMask from 'react-input-mask';
 import FaArrowDown from 'react-icons/lib/fa/arrow-down';
 import ConstClass from './constants.js';
 
@@ -127,8 +127,8 @@ class ClientCard extends Component {
   render() {
     return (
       
-            <Card className="dataContainer">
-
+            <Card className="dataContainer" outline color={this.props.cardStyle}>
+                <CardTitle style={{color:this.props.cardColor}} className="text-center"> <b>{this.props.cardTitle}</b> </CardTitle>
                 <Form
                   id="searchForm"
                   className={this.state.searchFormIsValid
@@ -170,28 +170,28 @@ class ClientCard extends Component {
 
                 <div id="dataContainer" className="container">
                   <Row>
-                    <Col className="dataTable" xs="4">
+                    <Col className="dataTableCombine" xs="4">
                       <b>Номер карты</b>
                     </Col>
-                    <Col className="dataTable">{this.state.clientCardNumber}</Col>
+                    <Col className="dataTableCombine">{this.state.clientCardNumber}</Col>
                   </Row>
                   <Row>
-                    <Col className="dataTable" xs="4">
+                    <Col className="dataTableCombine" xs="4">
                       <b>ФИО</b>
                     </Col>
-                    <Col className="dataTable">{this.state.clientName}</Col>
+                    <Col className="dataTableCombine">{this.state.clientName}</Col>
                   </Row>
                   <Row>
-                    <Col className="dataTable" xs="4">
+                    <Col className="dataTableCombine" xs="4">
                       <b>Телефон</b>
                     </Col>
-                    <Col className="dataTable">{this.state.clientPhone}</Col>
+                    <Col className="dataTableCombine">{this.state.clientPhone}</Col>
                   </Row>
                   <Row>
-                    <Col className="dataTable" xs="4">
+                    <Col className="dataTableCombine" xs="4">
                       <b>Дата рождения</b>
                     </Col>
-                    <Col className="dataTable">{this.state.clientBirthdate}</Col>
+                    <Col className="dataTableCombine">{this.state.clientBirthdate}</Col>
                   </Row>
                 </div>
 
@@ -279,13 +279,13 @@ class CombineForm extends Component {
 
           <Col xs="6">
 
-            <ClientCard ref={this.fromCard} setStatusCode={this.setStatusCode} />
+            <ClientCard ref={this.fromCard} setStatusCode={this.setStatusCode} cardTitle="СПИСАНИЕ БОНУСОВ" cardColor="red" cardStyle="danger" />
 
             <div id="iconContainer">
-              <FaArrowDown size={50} color="grey"/>
+              <FaArrowDown size={45} color="grey"/>
             </div>
 
-            <ClientCard ref={this.toCard} setStatusCode={this.setStatusCode} />
+            <ClientCard ref={this.toCard} setStatusCode={this.setStatusCode} cardTitle="НАЧИСЛЕНИЕ БОНУСОВ" cardColor="green" cardStyle="success" />
 
             <Button id="submitButton" color="primary" size="lg" block onClick={this.handleSubmitCombine} >Объединить</Button>
 

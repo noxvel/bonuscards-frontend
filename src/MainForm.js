@@ -332,8 +332,8 @@ class MainForm extends Component {
 																<Col>
 
 																		<Label for="clientPhone">Телефон</Label>
-																		<InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+38(999)999-99-99" //placeholder="+38(___)___-__-__"
-																				name="clientPhone" autoComplete="off" pattern="((\+38)\(\d{3}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
+																		<InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
+																				name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
 
 																		<FormFeedback>Укажите телефон клиента.</FormFeedback>
 																</Col>

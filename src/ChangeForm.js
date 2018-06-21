@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 
 import {
-  Alert,
   Col,
   Row,
   Container,
@@ -16,41 +15,11 @@ import {
 } from 'reactstrap';
 import './ChangeForm.css'
 import InputMask from 'react-input-mask';
-import ConstClass from './constants.js';
+import SERV_PATH from '../src/serverpath';
+import { STATUS_MSG } from './constants.js';
+import Message from './Message.js';
 
 const CHANGE_CARD = 'changecard'
-
-const ERROR_MESSAGES = {
-  0: {
-    color: "light",
-    message: ""
-  },
-  1: {
-    color: "info",
-    message: "Найдена карта!"
-  },
-  2: {
-    color: "danger",
-    message: "Не найдена карта по указаному телефону!"
-  },
-  3: {
-    color: "danger",
-    message: "Не указана карта для замены кода!"
-  },
-  4: {
-    color: "success",
-    message: "Карта заменена!"
-  },
-  5: {
-    color: "warning",
-    message: "Не удалось связаться с сервером, обратитесь в тех. службу!"
-  },
-  6: {
-    color: "danger",
-    message: "Не удалось заменить карту по техническим причинам!"
-  }
-}
-
 
 class ChangeForm extends Component {
 
@@ -61,7 +30,7 @@ class ChangeForm extends Component {
     oldCardNumber: "",
     newCardNumber: "",
 
-    statusCode: 0,
+		statusCode: STATUS_MSG.blank,
     searchFormIsValid: true,
     changeFormIsValid: true,
     tightWindowSize: false
@@ -80,7 +49,7 @@ class ChangeForm extends Component {
     this.setState({searchFormIsValid: true});
 
     // let jsonFormData = {}; jsonFormData = JSON.stringify(this.state);
-    fetch(ConstClass.APIPath + CHANGE_CARD + "?phone=" + this.state.clientPhone, {method: 'GET'}).then(response => {
+    fetch(SERV_PATH + CHANGE_CARD + "?phone=" + this.state.clientPhone, {method: 'GET'}).then(response => {
       if (response.ok) {
         return response.json();
       } else {
@@ -89,10 +58,10 @@ class ChangeForm extends Component {
       //return response.json();
     }).then(data => {
       this.setState({statusCode: data.statusCode});
-      if (data.statusCode === 1) 
-        this.setState({statusCode: data.statusCode, clientName: data.clientName, clientBirthdate: data.clientBirthdate, oldCardNumber: data.cardNumber});
+      if (data.statusCode.code === 2005) 
+        this.setState({clientName: data.clientName, clientBirthdate: data.clientBirthdate, oldCardNumber: data.cardNumber});
       }
-    ).catch(error => this.setState({statusCode: 5}))
+    ).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
 
   }
 
@@ -107,7 +76,7 @@ class ChangeForm extends Component {
       return;
     }
     if (this.state.oldCardNumber === ''){
-      this.setState({statusCode: 3})
+      this.setState({statusCode: STATUS_MSG.err_3003})
       return
     }
 
@@ -117,7 +86,7 @@ class ChangeForm extends Component {
                         newCardNumber: this.state.newCardNumber};
     jsonFormData = JSON.stringify(jsonFormData);
 
-    fetch(ConstClass.APIPath + CHANGE_CARD, {
+    fetch(SERV_PATH + CHANGE_CARD, {
       method: 'POST',
       // headers: {
       //   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -132,10 +101,10 @@ class ChangeForm extends Component {
       //return response.json();
     }).then(data => {
       this.setState({statusCode: data.statusCode});
-      if (data.statusCode === 4) 
+      if (data.statusCode.code === 2004) 
         this.clearFields();
       }
-    ).catch(error => this.setState({statusCode: 5}))
+    ).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
 
   }
 
@@ -155,10 +124,6 @@ class ChangeForm extends Component {
     this.setState({
       [name]: value
     },);
-  }
-
-  takeMessageText() {
-    return ERROR_MESSAGES[this.state.statusCode];
   }
 
   render() {
@@ -256,15 +221,7 @@ class ChangeForm extends Component {
 
           </Col>
           <Col>
-            <Alert
-              color={this
-              .takeMessageText(this.state.statusCode)
-              .color}
-              isOpen={this.state.statusCode !== 0}>
-              {this
-                .takeMessageText(this.state.statusCode)
-                .message}
-            </Alert>
+              <Message statusCode={this.state.statusCode} />
           </Col>
         </Row>
       </Container>

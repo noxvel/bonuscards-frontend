@@ -1,5 +1,8 @@
-const ConstClass = {
-  APIPath: 'http://192.168.100.159/Work/hs/BonusCards/',
-};
+export const STATUS_MSG = {
+    blank: {code: 1001, msg:""},
+    err_3001: {code: 3001, msg:"Промокоды не указаны!"},
+    err_3002: {code: 3002, msg:"Неверно указаны карты для объединения!"},
+    err_3003: {code: 3003, msg:"Не указана карта для замены кода!"},
+    err_3004: {code: 3004, msg:"Не удалось связаться с сервером, обратитесь в тех. службу!"}
+  }
 
-export default ConstClass;

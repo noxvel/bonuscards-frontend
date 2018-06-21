@@ -15,58 +15,11 @@ import {
 } from 'reactstrap';
 
 import InputMask from 'react-input-mask'
-import ConstClass from './constants.js';
-
+import SERV_PATH from '../src/serverpath';
+import { STATUS_MSG }  from './constants.js';
+import Message from './Message.js';
 
 const CREATE_CARD = 'createcard/'
-
-const ERROR_MESSAGES = {
-		0: {
-				color: "light",
-				message: ""
-		},
-		1: {
-				color: "success",
-				message: "Бонусная карта успешно создана!"
-		},
-		2: {
-				color: "danger",
-				message: "Карта с указаным номером уже существует!"
-		},
-		3: {
-				color: "danger",
-				message: "Один или несколько промокодов не найдены в базе!"
-		},
-		4: {
-				color: "danger",
-				message: "Уже есть карта, подвязанная к одному из промокодов!"
-		},
-		5: {
-				color: "warning",
-				message: "Не удалось связаться с сервером, обратитесь в тех. службу!"
-		},
-		6: {
-				color: "warning",
-				message: "Промокоды не указаны!"
-		},
-		7: {
-				color: "danger",
-				message: "Ошибка при созднии/редакт. карты!"
-		},
-		8: {
-				color: "warning",
-				message: "Карта по указанному номеру не найдена!"
-		},
-		9: {
-				color: "success",
-				message: "Данные по карте изменены!"
-		},
-		10: {
-				color: "info",
-				message: "Карта найдена!"
-		}
-
-}
 
 class PromoField extends Component {
 
@@ -99,7 +52,7 @@ class MainForm extends Component {
 				clientBirthdate: '',
 				editMode: 1, // 1 - create, 2 - promo, 3 - edit
 				cardNumber: "",
-				statusCode: 0,
+				statusCode: STATUS_MSG.blank,
 				formIsValid: true,
 				tightWindowSize: false,
 
@@ -131,7 +84,7 @@ class MainForm extends Component {
 
 				event.preventDefault();
 				event.stopPropagation();
-				this.setState({statusCode: 0});
+				this.setState({statusCode: STATUS_MSG.blank});
 
 				if (!event.target.checkValidity()) {
 						// form is invalid! so we do nothing
@@ -141,7 +94,7 @@ class MainForm extends Component {
 
 				if ((this.state.editMode === 2) && (!Array.isArray(this.state.promos) || !this.state.promos.length)) {
 						// array does not exist, is not an array, or is empty
-						this.setState({statusCode: 6});
+						this.setState({statusCode: STATUS_MSG.err_3001 });
 						return;
 				}
 				this.setState({formIsValid: true});
@@ -150,7 +103,7 @@ class MainForm extends Component {
 
 				jsonFormData = JSON.stringify(this.state);
 
-				fetch(ConstClass.APIPath + CREATE_CARD, {
+				fetch(SERV_PATH + CREATE_CARD, {
 						method: 'POST',
 						// headers: { 		// 'Content-Type': 'application/x-www-form-urlencoded;
 						// charset=UTF-8' 		// 'Accept': 'application/json', 		// 'Content-Type':
@@ -165,10 +118,10 @@ class MainForm extends Component {
 						//return response.json();
 				}).then(data => {
 						this.setState({statusCode: data.statusCode});
-						if (data.statusCode === 1 || data.statusCode === 9) 
+						if (data.statusCode.code === 2001 || data.statusCode.code === 2002) 
 								this.clearFields();
 						}
-				).catch(error => this.setState({statusCode: 5}))
+				).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
 		}
 
 		handleUserInput = (event) => {
@@ -183,10 +136,6 @@ class MainForm extends Component {
 
 		onRadioBtnClick = (e, mode) => {
 				this.setState({editMode: mode});
-		}
-
-		takeMessageText() {
-				return ERROR_MESSAGES[this.state.statusCode];
 		}
 
 		addPromo = (event) => {
@@ -227,7 +176,7 @@ class MainForm extends Component {
 
 				event.preventDefault();
 				event.stopPropagation();
-				this.setState({statusCode: 0});
+				this.setState({statusCode: STATUS_MSG.blank});
 
 				if (this.state.cardNumber === '') {
 						// form is invalid! so we do nothing
@@ -236,7 +185,7 @@ class MainForm extends Component {
 
 				this.setState({formIsValid: true});
 			
-				fetch(ConstClass.APIPath + CREATE_CARD + "?cardnumber=" + this.state.cardNumber, {method: 'GET'}).then(response => {
+				fetch(SERV_PATH + CREATE_CARD + "?cardnumber=" + this.state.cardNumber, {method: 'GET'}).then(response => {
 					if (response.ok) {
 						return response.json();
 					} else {
@@ -244,14 +193,14 @@ class MainForm extends Component {
 					}
 				}).then(data => {
 						this.setState({statusCode: data.statusCode});
-						if (data.statusCode === 10) {
+						if (data.statusCode.code === 2005) {
 								this.setState({ clientName: data.clientName, clientBirthdate: data.clientBirthdate, clientPhone: data.clientPhone});
 							}
 						else {
 								this.clearFields();
 						}
 						}
-				).catch(error => this.setState({statusCode: 5}))
+				).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
 
 		}
 
@@ -401,15 +350,8 @@ class MainForm extends Component {
 										</Col>
 										<Col>
 
-												<Alert
-														color={this
-														.takeMessageText(this.state.statusCode)
-														.color}
-														isOpen={this.state.statusCode !== 0}>
-														{this
-																.takeMessageText(this.state.statusCode)
-																.message}
-												</Alert>
+												<Message statusCode={this.state.statusCode} />
+
 										</Col>
 								</Row>
 

@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 
 import {
-  Alert,
   Col,
   Row,
   Container,
@@ -17,42 +16,11 @@ import {
 } from 'reactstrap';
 import './CombineForm.css'
 import FaArrowDown from 'react-icons/lib/fa/arrow-down';
-import ConstClass from './constants.js';
-
+import SERV_PATH from '../src/serverpath';
+import { STATUS_MSG }  from './constants.js';
+import Message from './Message.js';
 
 const COMBINE_CARD = 'combinecards'
-
-const ERROR_MESSAGES = {
-  0: {
-    color: "light",
-    message: ""
-  },
-  1: {
-    color: "info",
-    message: "Найдена карта!"
-  },
-  2: {
-    color: "danger",
-    message: "Не найдена карта по указаному номеру!"
-  },
-  3: {
-    color: "danger",
-    message: "Неверно указана карты для объединения!"
-  },
-  4: {
-    color: "success",
-    message: "Карты объединены!"
-  },
-  5: {
-    color: "warning",
-    message: "Не удалось связаться с сервером, обратитесь в тех. службу!"
-  },
-  6: {
-    color: "danger",
-    message: "Не удалось объединить карты по техническим причинам!"
-  }
-}
-
 
 class ClientCard extends Component {
   state = { 
@@ -62,7 +30,7 @@ class ClientCard extends Component {
     clientCardNumber: "",
     searchCardNumber: "",
 
-    statusCode: 0,
+		statusCode: STATUS_MSG.blank,
     searchFormIsValid: true,
    }
 
@@ -103,7 +71,7 @@ class ClientCard extends Component {
 
     // let jsonFormData = {}; jsonFormData = JSON.stringify(this.state);
 
-    fetch(ConstClass.APIPath + COMBINE_CARD + "?cardnumber=" + this.state.searchCardNumber, {method: 'GET'}).then(response => {
+    fetch(SERV_PATH + COMBINE_CARD + "?cardnumber=" + this.state.searchCardNumber, {method: 'GET'}).then(response => {
       if (response.ok) {
         return response.json();
       } else {
@@ -113,14 +81,14 @@ class ClientCard extends Component {
     }).then(data => {
       this.props.setStatusCode(data.statusCode);
       // this.setState({statusCode: data.statusCode});
-      if (data.statusCode === 1) 
+      if (data.statusCode.code === 2005) 
         this.setState({clientCardNumber: data.clientCardNumber, clientName: data.clientName, clientBirthdate: data.clientBirthdate, clientPhone: data.clientPhone});
         //this.props.setCardNumber(data.clientCardNumber);
       else
         this.clearFields();
       this.setState({searchCardNumber: ''});
       }
-    ).catch(error => this.props.setStatusCode(5))
+    ).catch(error => this.props.setStatusCode(STATUS_MSG.err_3004))
 
   }
 
@@ -209,7 +177,7 @@ class CombineForm extends Component {
     this.toCard   = React.createRef();
   }
   state = {
-    statusCode: 0,
+    statusCode: STATUS_MSG.blank,
     fromCardNumber: '',
     toCardNumber: '',
   }
@@ -231,7 +199,7 @@ class CombineForm extends Component {
     event.stopPropagation();
 
     if (fromCardNumber === '' || toCardNumber === '' || fromCardNumber === toCardNumber) {
-      this.setState({statusCode: 3});
+      this.setState({statusCode: STATUS_MSG.err_3002});
       return;
     }
 
@@ -241,7 +209,7 @@ class CombineForm extends Component {
     };
     jsonFormData = JSON.stringify(jsonFormData);
 
-    fetch(ConstClass.APIPath + COMBINE_CARD, {
+    fetch(SERV_PATH + COMBINE_CARD, {
       method: 'POST',
       // headers: {   'Content-Type': 'application/x-www-form-urlencoded;
       // charset=UTF-8' },
@@ -255,18 +223,14 @@ class CombineForm extends Component {
       //return response.json();
     }).then(data => {
       this.setState({statusCode: data.statusCode});
-       if (data.statusCode === 4){
+       if (data.statusCode.code === 2003){
          this.fromCard.current.clearFields();
          this.toCard.current.clearFields();
        } 
        
       }
-    ).catch(error => this.setState({statusCode: 5}))
+    ).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
 
-  }
-
-  takeMessageText() {
-    return ERROR_MESSAGES[this.state.statusCode];
   }
 
   render() {
@@ -290,16 +254,8 @@ class CombineForm extends Component {
             <Button id="submitButton" color="primary" size="lg" block onClick={this.handleSubmitCombine} >Объединить</Button>
 
           </Col>
-          <Col>
-            <Alert
-              color={this
-              .takeMessageText(this.state.statusCode)
-              .color}
-              isOpen={this.state.statusCode !== 0}>
-              {this
-                .takeMessageText(this.state.statusCode)
-                .message}
-            </Alert>
+          <Col>	
+            <Message statusCode={this.state.statusCode} />
           </Col>
         </Row>
       </Container>

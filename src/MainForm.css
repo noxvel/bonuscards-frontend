@@ -33,3 +33,11 @@ label {
     width: 50%;
 }
 
+.oneline {
+    display: flex;
+    align-items: flex-start;
+}
+
+.oneline button {
+    margin-left: 5px;
+}

@@ -4,6 +4,7 @@ import {Switch, Route, Redirect} from 'react-router-dom'
 import MainForm from './MainForm.js';
 import ChangeForm from './ChangeForm.js';
 import CombineForm from './CombineForm.js';
+import EditForm from './EditForm.js';
 
 class Main extends Component {
   state = {}
@@ -16,6 +17,7 @@ class Main extends Component {
           <Route path='/create' component={MainForm}/>
           <Route path='/replacement' component={ChangeForm}/>
           <Route path='/combine' component={CombineForm}/>
+          <Route path='/edit' component={EditForm}/>
         </Switch>
       </main>
     );

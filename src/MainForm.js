@@ -50,7 +50,7 @@ class MainForm extends Component {
 		clientName: '',
 		clientPhone: '',
 		clientBirthdate: '',
-		editMode: 1, // 1 - create, 2 - promo, 3 - edit
+		editMode: 1, // 1 - create, 2 - promo
 		cardNumber: "",
 		statusCode: STATUS_MSG.blank,
 		formIsValid: true,
@@ -127,8 +127,6 @@ class MainForm extends Component {
 	handleUserInput = (event) => {
 		const name = event.target.name;
 		const value = event.target.value;
-		// this.setState({[name]: value},              () => { this.validateField(name,
-		// value) });
 		this.setState({
 			[name]: value
 		});
@@ -171,38 +169,6 @@ class MainForm extends Component {
 			: false;
 	}
 
-	searchCard = (event) => {
-
-		event.preventDefault();
-		event.stopPropagation();
-		this.setState({ statusCode: STATUS_MSG.blank });
-
-		if (this.state.cardNumber === '') {
-			// form is invalid! so we do nothing
-			return;
-		}
-
-		this.setState({ formIsValid: true });
-
-		fetch(SERV_PATH + CREATE_CARD + "?cardnumber=" + this.state.cardNumber, { method: 'GET' }).then(response => {
-			if (response.ok) {
-				return response.json();
-			} else {
-				throw new Error('Something went wrong ...');
-			}
-		}).then(data => {
-			this.setState({ statusCode: data.statusCode });
-			if (data.statusCode.code === 2005) {
-				this.setState({ clientName: data.clientName, clientBirthdate: data.clientBirthdate, clientPhone: data.clientPhone });
-			}
-			else {
-				this.clearFields();
-			}
-		}
-		).catch(error => this.setState({ statusCode: STATUS_MSG.err_3004 }))
-
-	}
-
 	render() {
 
 		let promos = this
@@ -230,24 +196,14 @@ class MainForm extends Component {
 									disabled={this.state.editMode !== 2} />
 								<FormFeedback>Укажите промокод.</FormFeedback>
 							</div>
-								<Button color="success" onClick={this.addPromo}>+</Button>
+							<Button color="success" onClick={this.addPromo}>+</Button>
 						</div>
 						<div id="promoContainer">
 							{promos}
 						</div>
 					</Col>
 				)
-			} else if (this.state.editMode === 3) {
-				return (
-					<Col id="searchBlock">
-
-						<Button id="searchButton" color="secondary" onClick={this.searchCard}>
-							Поиск
-												</Button>
-
-					</Col>
-				)
-			}
+			} 
 		}
 
 		return (
@@ -318,10 +274,6 @@ class MainForm extends Component {
 											color="info"
 											onClick={(e) => this.onRadioBtnClick(e, 2)}
 											active={this.checkEditMode(2)}>Промокод</Button>
-										<Button
-											color="info"
-											onClick={(e) => this.onRadioBtnClick(e, 3)}
-											active={this.checkEditMode(3)}>Редактировать</Button>
 									</ButtonGroup>
 
 								</div>

@@ -16,6 +16,9 @@ class Header extends Component {
             <NavLink className="nav-link" activeClassName='active' to='/create'>Создать</NavLink>
           </NavItem>
           <NavItem>
+            <NavLink className="nav-link" activeClassName='active' to='/edit'>Редактировать</NavLink>
+          </NavItem>
+          <NavItem>
             <NavLink className="nav-link" activeClassName='active' to='/replacement'>Заменить</NavLink>
           </NavItem>
           <NavItem>

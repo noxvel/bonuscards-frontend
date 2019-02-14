@@ -23,16 +23,6 @@ label {
     margin-bottom: 3%;
 }
 
-#searchBlock {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-  }
-
-#searchButton {
-    width: 50%;
-}
-
 .oneline {
     display: flex;
     align-items: flex-start;

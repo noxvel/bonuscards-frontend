@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 
 import {Switch, Route, Redirect} from 'react-router-dom'
-import MainForm from './MainForm.js';
-import ChangeForm from './ChangeForm.js';
-import CombineForm from './CombineForm.js';
-import EditForm from './EditForm.js';
+import MainForm from './mainForm/MainForm.js';
+import ChangeForm from './changeForm/ChangeForm.js';
+import CombineForm from './combineForm/CombineForm.js';
+import EditForm from './editForm/EditForm.js';
 
 class Main extends Component {
   state = {}

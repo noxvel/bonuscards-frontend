@@ -45,6 +45,7 @@ class MainForm extends Component {
 
 		this.promoInput = '';
 
+		
 	}
 	state = {
 		clientName: '',
@@ -61,6 +62,15 @@ class MainForm extends Component {
 
 	componentDidMount() {
 		window.addEventListener("resize", this.updateDimensions);
+
+		// Input client data from URL search parameters
+		let searchParams = new URLSearchParams(this.props.location.search);
+		let PName = searchParams.get('PName') || '';
+		let BDate = searchParams.get('BDate') || '';
+		let Phone = searchParams.get('Phone') || '';
+		let BKNum = searchParams.get('BKNum') || '';
+		this.setState({clientName: PName, clientBirthdate: BDate, clientPhone: Phone, cardNumber: BKNum});
+
 	}
 	componentWillUnmount() {
 		window.removeEventListener("resize", this.updateDimensions);

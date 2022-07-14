@@ -15,9 +15,9 @@ import {
 } from 'reactstrap';
 import './EditForm.css'
 import InputMask from 'react-input-mask'
-import SERV_PATH from '../src/serverpath';
-import { STATUS_MSG } from './constants.js';
-import Message from './Message.js';
+import SERV_PATH from '../serverpath';
+import { STATUS_MSG } from '../constants.js';
+import Message from '../Message.js';
 
 const EDIT_CARD = 'editcard/'
 

@@ -16,9 +16,9 @@ import {
 } from 'reactstrap';
 import './CombineForm.css'
 import FaArrowDown from 'react-icons/lib/fa/arrow-down';
-import SERV_PATH from '../src/serverpath';
-import { STATUS_MSG }  from './constants.js';
-import Message from './Message.js';
+import SERV_PATH from '../serverpath';
+import { STATUS_MSG }  from '../constants.js';
+import Message from '../Message.js';
 
 const COMBINE_CARD = 'combinecards'
 

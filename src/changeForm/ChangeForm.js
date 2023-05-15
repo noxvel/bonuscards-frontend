@@ -126,6 +126,14 @@ class ChangeForm extends Component {
     },);
   }
 
+	handleCardNumberInput = (event) => {
+		const name = event.target.name;
+		const value = event.target.value;
+		this.setState({
+			[name]: value.replace("-","")
+		});
+	}
+
   render() {
     return (
       <Container className="mainForm">
@@ -212,7 +220,7 @@ class ChangeForm extends Component {
                     pattern="\d{8,14}"
                     required
                     value={this.state.newCardNumber}
-                    onChange={this.handleUserInput}/>
+                    onChange={this.handleCardNumberInput}/>
                   <FormFeedback>Укажите код новой карты.</FormFeedback>
                 </div>
               </FormGroup>

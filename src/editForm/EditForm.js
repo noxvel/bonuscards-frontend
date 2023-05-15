@@ -44,6 +44,11 @@ class EditForm extends Component {
     this.setState({ clientName: '', clientPhone: '', clientBirthdate: '', searchCardNumber: '', promoNumber: '', searchFieldAvailable: true });
   }
 
+  resetSearch = () => {
+    this.setState({ searchFormIsValid: true});
+    this.clearFields();
+  }
+
   handleSubmit = (event) => {
 
     event.preventDefault();
@@ -96,6 +101,14 @@ class EditForm extends Component {
     });
   }
 
+	handleCardNumberInput = (event) => {
+		const name = event.target.name;
+		const value = event.target.value;
+		this.setState({
+			[name]: value.replace("-","")
+		});
+	}
+
   searchCard = (event) => {
 
     event.preventDefault();
@@ -105,6 +118,12 @@ class EditForm extends Component {
     if (this.state.searchCardNumber === '') {
       // form is invalid! so we do nothing
       this.clearFields();
+      return;
+    }
+
+    if (!event.target.checkValidity()) {
+      // form is invalid! so we do nothing
+      this.setState({searchFormIsValid: false})
       return;
     }
 
@@ -167,11 +186,11 @@ class EditForm extends Component {
                         required
                         disabled={!this.state.searchFieldAvailable}
                         value={this.state.searchCardNumber}
-                        onChange={this.handleUserInput} />
+                        onChange={this.handleCardNumberInput} />
                       <InputGroupAddon addonType="append">
-                        <Button outline color="secondary" onClick={this.clearFields}>✖</Button>
+                        <Button outline color="secondary" onClick={this.resetSearch}>✖</Button>
                       </InputGroupAddon>
-                      <FormFeedback>Укажите код карты.</FormFeedback>
+                      <FormFeedback>Укажите правильный код карты.</FormFeedback>
                     </InputGroup>
 
                   </FormGroup>
@@ -196,7 +215,7 @@ class EditForm extends Component {
                   className="form-control"
                   autoComplete="off"
                   name="clientName"
-                  placeholder="Чапаев Василий Иванович"
+                  placeholder="Шевченко Тарас Григорович"
                   required
                   disabled={this.state.searchFieldAvailable}
                   value={this.state.clientName}
@@ -221,7 +240,7 @@ class EditForm extends Component {
                   <Input
                     type="date"
                     name="clientBirthdate"
-                    placeholder="password placeholder"
+                    placeholder="date placeholder"
                     required
                     disabled={this.state.searchFieldAvailable}
                     value={this.state.clientBirthdate}

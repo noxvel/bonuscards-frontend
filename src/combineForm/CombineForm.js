@@ -43,6 +43,14 @@ class ClientCard extends Component {
     },);
   }
 
+	handleCardNumberInput = (event) => {
+		const name = event.target.name;
+		const value = event.target.value;
+		this.setState({
+			[name]: value.replace("-","")
+		});
+	}
+
   // setCardNumber = (clientCardNumber) => {
   //   this.props.searchCardNumber(this.props.cardType, clientCardNumber);
   // }
@@ -123,8 +131,8 @@ class ClientCard extends Component {
 																						autoComplete="off"
 																						required
 																						value={this.state.searchCardNumber}
-																						onChange={this.handleUserInput}/>
-																				<FormFeedback>Укажите код карты.</FormFeedback>
+																						onChange={this.handleCardNumberInput}/>
+																				<FormFeedback>Укажите правильный код карты.</FormFeedback>
                         </InputGroup>
 
                       </FormGroup>

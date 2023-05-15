@@ -68,6 +68,7 @@ class MainForm extends Component {
 		let PName = searchParams.get('PName') || '';
 		let BDate = searchParams.get('BDate') || '';
 		let BKNum = searchParams.get('BKNum') || '';
+		BKNum.replace("-","");
 		let Phone = searchParams.get('Phone') || '';
 		if(Phone != '' && Phone.length == 12){
 			Phone = `+${Phone.substring(0,3)}(${Phone.substring(3,5)})${Phone.substring(5,8)}-${Phone.substring(8,10)}-${Phone.substring(10)}`
@@ -142,6 +143,14 @@ class MainForm extends Component {
 		const value = event.target.value;
 		this.setState({
 			[name]: value
+		});
+	}
+
+	handleCardNumberInput = (event) => {
+		const name = event.target.name;
+		const value = event.target.value;
+		this.setState({
+			[name]: value.replace("-","")
 		});
 	}
 
@@ -242,7 +251,7 @@ class MainForm extends Component {
 									className="form-control"
 									autoComplete="off"
 									name="clientName"
-									placeholder="Чапаев Василий Иванович"
+									placeholder="Шевченко Тарас Григорович"
 									required
 									value={this.state.clientName}
 									onChange={this.handleUserInput} />
@@ -266,7 +275,7 @@ class MainForm extends Component {
 									<Input
 										type="date"
 										name="clientBirthdate"
-										placeholder="password placeholder"
+										placeholder="date placeholder"
 										required
 										value={this.state.clientBirthdate}
 										onChange={this.handleUserInput} />
@@ -301,7 +310,7 @@ class MainForm extends Component {
 											autoComplete="off"
 											required
 											value={this.state.cardNumber}
-											onChange={this.handleUserInput} />
+											onChange={this.handleCardNumberInput} />
 										<FormFeedback>Укажите код карты.</FormFeedback>
 									</Col>
 									{/* show or hide promo field */}

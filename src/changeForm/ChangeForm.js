@@ -11,10 +11,11 @@ import {
   Input,
   FormFeedback,
   InputGroupAddon,
-  InputGroup
+  InputGroup,
+  Spinner
 } from 'reactstrap';
 import './ChangeForm.css'
-import InputMask from 'react-input-mask';
+// import InputMask from 'react-input-mask';
 import SERV_PATH from '../serverpath';
 import { STATUS_MSG } from '../constants.js';
 import Message from '../Message.js';
@@ -29,7 +30,8 @@ class ChangeForm extends Component {
     clientBirthdate: '',
     oldCardNumber: "",
     newCardNumber: "",
-
+    searching: false,
+    sending: false,
 		statusCode: STATUS_MSG.blank,
     searchFormIsValid: true,
     changeFormIsValid: true,
@@ -46,7 +48,7 @@ class ChangeForm extends Component {
       return;
     }
 
-    this.setState({searchFormIsValid: true});
+    this.setState({searchFormIsValid: true, searching: true});
 
     // let jsonFormData = {}; jsonFormData = JSON.stringify(this.state);
     fetch(SERV_PATH + CHANGE_CARD + "?phone=" + this.state.clientPhone, {method: 'GET'}).then(response => {
@@ -60,8 +62,9 @@ class ChangeForm extends Component {
       this.setState({statusCode: data.statusCode});
       if (data.statusCode.code === 2005) 
         this.setState({clientName: data.clientName, clientBirthdate: data.clientBirthdate, oldCardNumber: data.cardNumber});
-      }
-    ).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
+    })
+    .catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
+    .finally(() => this.setState({searching: false}))
 
   }
 
@@ -80,7 +83,7 @@ class ChangeForm extends Component {
       return
     }
 
-    this.setState({changeFormIsValid: true});
+    this.setState({changeFormIsValid: true, sending: true});
 
     let jsonFormData = {oldCardNumber: this.state.oldCardNumber,
                         newCardNumber: this.state.newCardNumber};
@@ -103,8 +106,9 @@ class ChangeForm extends Component {
       this.setState({statusCode: data.statusCode});
       if (data.statusCode.code === 2004) 
         this.clearFields();
-      }
-    ).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
+    })
+    .catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
+    .finally(() => this.setState({sending: false}))
 
   }
 
@@ -162,8 +166,18 @@ class ChangeForm extends Component {
                     {/* <Label for="clientPhone" className="mr-sm-2">Телефон</Label> */}
                     <InputGroup>
                       <InputGroupAddon addonType="prepend">Телефон</InputGroupAddon>
-                      <InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
-																				name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/>
+                      <Input
+                        type="tel"
+                        pattern="\d{8,20}"
+                        className="form-control"
+                        autoComplete="off"
+                        name="clientPhone"
+                        placeholder="380XXXXXXXXX"
+                        required
+                        value={this.state.clientPhone}
+                        onChange={this.handleUserInput} />
+                      {/* <InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
+																				name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput}/> */}
 
                       <FormFeedback>Укажите телефон клиента.</FormFeedback>
                     </InputGroup>
@@ -171,7 +185,9 @@ class ChangeForm extends Component {
                   </FormGroup>
                 </Col>
                 <Col sm="3">
-                  <Button outline type="submit">Поиск</Button>
+                  <Button outline type="submit" disabled={this.state.searching} style={{width: '5rem'}}>
+                    {this.state.searching ? <Spinner color="secondary" style={{width: '1.5rem', height: '1.5rem'}}/> : 'Поиск'}
+                  </Button>
                 </Col>
               </Row>
 
@@ -224,7 +240,9 @@ class ChangeForm extends Component {
                   <FormFeedback>Укажите код новой карты.</FormFeedback>
                 </div>
               </FormGroup>
-              <Button type="submit">Заменить</Button>
+              <Button type="submit" disabled={this.state.sending} style={{width: '8rem'}}>
+                {this.state.sending ? <Spinner color="light" style={{width: '1.5rem', height: '1.5rem'}}/> : 'Заменить'}
+              </Button>
             </Form>
 
           </Col>

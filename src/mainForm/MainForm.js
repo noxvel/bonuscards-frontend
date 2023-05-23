@@ -11,10 +11,11 @@ import {
 	Label,
 	Input,
 	FormFeedback,
-	ButtonGroup
+	ButtonGroup,
+	Spinner
 } from 'reactstrap';
 
-import InputMask from 'react-input-mask'
+// import InputMask from 'react-input-mask'
 import SERV_PATH from '../serverpath';
 import { STATUS_MSG } from '../constants.js';
 import Message from '../Message.js';
@@ -56,7 +57,7 @@ class MainForm extends Component {
 		statusCode: STATUS_MSG.blank,
 		formIsValid: true,
 		tightWindowSize: false,
-
+		sending: false,
 		promos: []
 	}
 
@@ -69,9 +70,9 @@ class MainForm extends Component {
 		let BDate = searchParams.get('BDate') || '';
 		let BKNum = searchParams.get('BKNum') || '';
 		let Phone = searchParams.get('Phone') || '';
-		if(Phone != '' && Phone.length == 12){
-			Phone = `+${Phone.substring(0,3)}(${Phone.substring(3,5)})${Phone.substring(5,8)}-${Phone.substring(8,10)}-${Phone.substring(10)}`
-		}
+		// if(Phone != '' && Phone.length == 12){
+		// 	Phone = `+${Phone.substring(0,3)}(${Phone.substring(3,5)})${Phone.substring(5,8)}-${Phone.substring(8,10)}-${Phone.substring(10)}`
+		// }
 		this.setState({clientName: PName, clientBirthdate: BDate, clientPhone: Phone, cardNumber: BKNum.replace("-","")});
 
 	}
@@ -116,6 +117,8 @@ class MainForm extends Component {
 
 		jsonFormData = JSON.stringify(this.state);
 
+		this.setState({ sending: true });
+
 		fetch(SERV_PATH + CREATE_CARD, {
 			method: 'POST',
 			// headers: { 		// 'Content-Type': 'application/x-www-form-urlencoded;
@@ -133,8 +136,9 @@ class MainForm extends Component {
 			this.setState({ statusCode: data.statusCode });
 			if (data.statusCode.code === 2001 || data.statusCode.code === 2002)
 				this.clearFields();
-		}
-		).catch(error => this.setState({ statusCode: STATUS_MSG.err_3004 }))
+		})
+		.catch(error => this.setState({ statusCode: STATUS_MSG.err_3004 }))
+		.finally(() => this.setState({sending: false}))
 	}
 
 	handleUserInput = (event) => {
@@ -261,8 +265,18 @@ class MainForm extends Component {
 								<Col>
 
 									<Label for="clientPhone">Телефон</Label>
-									<InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
-										name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput} />
+									<Input
+										type="tel"
+										pattern="\d{8,20}"
+										className="form-control"
+										autoComplete="off"
+										name="clientPhone"
+										placeholder="380XXXXXXXXX"
+										required
+										value={this.state.clientPhone}
+										onChange={this.handleUserInput} />
+									{/* <InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
+										name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput} /> */}
 
 									<FormFeedback>Укажите телефон клиента.</FormFeedback>
 								</Col>
@@ -319,7 +333,9 @@ class MainForm extends Component {
 							</div>
 
 							<FormGroup >
-								<Button id="submitButton" color="primary" size="lg" block type="submit">Отправить</Button>
+								<Button id="submitButton" color="primary" size="lg" block type="submit" disabled={this.state.sending}>
+									{this.state.sending ? <Spinner color="light" size="md"/> : 'Отправить'}
+								</Button>
 							</FormGroup>
 						</Form>
 

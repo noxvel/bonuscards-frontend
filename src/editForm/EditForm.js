@@ -11,10 +11,11 @@ import {
   InputGroupAddon,
   InputGroupText,
   Label,
-  InputGroup
+  InputGroup,
+  Spinner
 } from 'reactstrap';
 import './EditForm.css'
-import InputMask from 'react-input-mask'
+// import InputMask from 'react-input-mask'
 import SERV_PATH from '../serverpath';
 import { STATUS_MSG } from '../constants.js';
 import Message from '../Message.js';
@@ -35,8 +36,9 @@ class EditForm extends Component {
       searchFormIsValid: true,
       editFormIsValid: true,
       searchFieldAvailable: true,
-      promoNumberAvailable: true
-
+      promoNumberAvailable: true,
+      searching: false,
+      sending: false
     };
   }
 
@@ -69,7 +71,8 @@ class EditForm extends Component {
       this.setState({ statusCode: STATUS_MSG.err_3001 });
       return;
     }
-    this.setState({ editFormIsValid: true });
+
+    this.setState({ editFormIsValid: true, sending: true});
 
     let jsonFormData = {};
 
@@ -89,8 +92,9 @@ class EditForm extends Component {
       this.setState({ statusCode: data.statusCode });
       if (data.statusCode.code === 2001 || data.statusCode.code === 2002)
         this.clearFields();
-    }
-    ).catch(error => this.setState({ statusCode: STATUS_MSG.err_3004 }))
+    })
+    .catch(error => this.setState({ statusCode: STATUS_MSG.err_3004 }))
+		.finally(() => this.setState({sending: false}))
   }
 
   handleUserInput = (event) => {
@@ -127,7 +131,7 @@ class EditForm extends Component {
       return;
     }
 
-    this.setState({ searchFormIsValid: true });
+    this.setState({ searchFormIsValid: true, searching: true });
 
     fetch(SERV_PATH + EDIT_CARD + "?cardnumber=" + this.state.searchCardNumber, { method: 'GET' }).then(response => {
       if (response.ok) {
@@ -143,8 +147,9 @@ class EditForm extends Component {
       else {
         this.clearFields();
       }
-    }
-    ).catch(error => this.setState({ statusCode: STATUS_MSG.err_3004 }))
+    })
+    .catch(error => this.setState({ statusCode: STATUS_MSG.err_3004 }))
+    .finally(() => this.setState({searching: false}))
 
   }
 
@@ -196,7 +201,9 @@ class EditForm extends Component {
                   </FormGroup>
                 </Col>
                 <Col sm="3">
-                  <Button type="submit">Поиск</Button>
+                  <Button type="submit" disabled={this.state.searching} style={{width: '5rem'}}>
+                    {this.state.searching ? <Spinner color="light" style={{width: '1.5rem', height: '1.5rem'}}/> : 'Поиск'}
+                  </Button>
                 </Col>
               </Row>
             </Form>
@@ -227,8 +234,19 @@ class EditForm extends Component {
                 <Col>
 
                   <Label for="clientPhone">Телефон</Label>
-                  <InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
-                    disabled={this.state.searchFieldAvailable} name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput} />
+									<Input
+										type="tel"
+										pattern="\d{8,20}"
+										className="form-control"
+										autoComplete="off"
+										name="clientPhone"
+										placeholder="380XXXXXXXXX"
+										required
+                    disabled={this.state.searchFieldAvailable}
+										value={this.state.clientPhone}
+										onChange={this.handleUserInput} />
+                  {/* <InputMask className="form-control" type="tel" alwaysShowMask={true} mask="+999(99)999-99-99" //placeholder="+38(___)___-__-__"
+                    disabled={this.state.searchFieldAvailable} name="clientPhone" autoComplete="off" pattern="((\+380)\(\d{2}\))\d{3}-\d{2}-\d{2}" required value={this.state.clientPhone} onChange={this.handleUserInput} /> */}
 
                   <FormFeedback>Укажите телефон клиента.</FormFeedback>
                 </Col>
@@ -277,7 +295,9 @@ class EditForm extends Component {
               </div>
 
               <FormGroup >
-                <Button id="submitButton" color="info" size="lg" block type="submit">Редактировать</Button>
+                <Button id="submitButton" color="info" size="lg" block type="submit" disabled={this.state.sending}>
+									{this.state.sending ? <Spinner color="light" size="md"/> : 'Редактировать'}
+                </Button>
               </FormGroup>
             </Form>
 

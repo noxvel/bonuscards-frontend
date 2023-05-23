@@ -12,7 +12,8 @@ import {
   InputGroupAddon,
   Card,
   CardTitle,
-  InputGroup
+  InputGroup,
+  Spinner
 } from 'reactstrap';
 import './CombineForm.css'
 import FaArrowDown from 'react-icons/lib/fa/arrow-down';
@@ -29,7 +30,7 @@ class ClientCard extends Component {
     clientBirthdate: '',
     clientCardNumber: "",
     searchCardNumber: "",
-
+    searching: false,
 		statusCode: STATUS_MSG.blank,
     searchFormIsValid: true,
    }
@@ -75,7 +76,7 @@ class ClientCard extends Component {
       return;
     }
 
-    this.setState({searchFormIsValid: true});
+    this.setState({searchFormIsValid: true, searching: true});
 
     // let jsonFormData = {}; jsonFormData = JSON.stringify(this.state);
 
@@ -95,8 +96,9 @@ class ClientCard extends Component {
       else
         this.clearFields();
       this.setState({searchCardNumber: ''});
-      }
-    ).catch(error => this.props.setStatusCode(STATUS_MSG.err_3004))
+    })
+    .catch(error => this.props.setStatusCode(STATUS_MSG.err_3004))
+    .finally(() => this.setState({searching: false}))
 
   }
 
@@ -138,7 +140,9 @@ class ClientCard extends Component {
                       </FormGroup>
                     </Col>
                     <Col sm="3">
-                      <Button type="submit">Поиск</Button>
+                      <Button type="submit" disabled={this.state.searching} style={{width: '5rem'}}>
+                        {this.state.searching ? <Spinner color="light" style={{width: '1.5rem', height: '1.5rem'}}/> : 'Поиск'}
+                      </Button>
                     </Col>
                   </Row>
 
@@ -188,6 +192,7 @@ class CombineForm extends Component {
     statusCode: STATUS_MSG.blank,
     fromCardNumber: '',
     toCardNumber: '',
+    sending: false
   }
 
   setCardNumber = (name, value) => {
@@ -217,6 +222,8 @@ class CombineForm extends Component {
     };
     jsonFormData = JSON.stringify(jsonFormData);
 
+    this.setState({sending: true});
+
     fetch(SERV_PATH + COMBINE_CARD, {
       method: 'POST',
       // headers: {   'Content-Type': 'application/x-www-form-urlencoded;
@@ -236,8 +243,9 @@ class CombineForm extends Component {
          this.toCard.current.clearFields();
        } 
        
-      }
-    ).catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
+    })
+    .catch(error => this.setState({statusCode: STATUS_MSG.err_3004}))
+    .finally(() => this.setState({sending: false}))
 
   }
 
@@ -259,7 +267,9 @@ class CombineForm extends Component {
 
             <ClientCard ref={this.toCard} setStatusCode={this.setStatusCode} cardTitle="НАЧИСЛЕНИЕ БОНУСОВ" cardColor="green" cardStyle="success" />
 
-            <Button id="submitButton" color="primary" size="lg" block onClick={this.handleSubmitCombine} >Объединить</Button>
+            <Button className="mb-4" id="submitButton" color="primary" size="lg" block onClick={this.handleSubmitCombine} disabled={this.state.sending}>
+              {this.state.sending ? <Spinner color="light" size="md"/> : 'Объединить'}
+            </Button>
 
           </Col>
           <Col>	
